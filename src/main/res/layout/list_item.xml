@@ -58,17 +58,17 @@
             android:contentDescription="@string/favorite"
             android:src="@drawable/badge_favorite" />
 
-        <ImageView
-            android:id="@+id/keptOfflineIcon"
-            android:layout_width="@dimen/list_item_kept_offline_icon_layout_width"
-            android:layout_height="@dimen/list_item_kept_offline_icon_layout_height"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true"
-            android:layout_marginEnd="@dimen/list_item_kept_offline_icon_layout_right_end_margin"
-            android:layout_marginRight="@dimen/list_item_kept_offline_icon_layout_right_end_margin"
-            android:contentDescription="@string/available_offline_icon"
-            android:src="@drawable/ic_available_offline" />
+            <ImageView
+                android:id="@+id/favorite_action"
+                android:layout_width="@dimen/list_item_favorite_action_layout_width"
+                android:layout_height="@dimen/list_item_favorite_action_layout_height"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentTop="true"
+                android:layout_marginEnd="@dimen/standard_quarter_margin"
+                android:layout_marginRight="@dimen/standard_quarter_margin"
+                android:contentDescription="@string/favorite"
+                android:src="@drawable/favorite"/>
 
         <ImageView
             android:id="@+id/localFileIndicator"
