@@ -827,6 +827,7 @@ public class OCFileListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
             thumbnail = itemView.findViewById(R.id.thumbnail);
             favorite = itemView.findViewById(R.id.favorite_action);
+            favorite.getDrawable().mutate();
             offlineIcon = itemView.findViewById(R.id.keptOfflineIcon);
             localFileIndicator = itemView.findViewById(R.id.localFileIndicator);
             shared = itemView.findViewById(R.id.sharedIcon);
