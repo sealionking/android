@@ -35,6 +35,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -57,8 +58,11 @@ import com.owncloud.android.utils.ThemeUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import androidx.annotation.NonNull;
@@ -118,7 +122,6 @@ public class UploadFilesActivity extends FileActivity implements
     private static final String TAG = "UploadFilesActivity";
     private static final String WAIT_DIALOG_TAG = "WAIT";
     private static final String QUERY_TO_MOVE_DIALOG_TAG = "QUERY_TO_MOVE";
-    private String capturedImagePath;
     private int requestCode;
 
     @Override
@@ -164,7 +167,8 @@ public class UploadFilesActivity extends FileActivity implements
         mDirectories.add(File.separator);
 
         if(requestCode == FileDisplayActivity.REQUEST_CODE__DIRECT_CAMERA_UPLOAD){
-            startActivityForResult(new Intent(MediaStore.ACTION_IMAGE_CAPTURE), REQUEST_CODE_CAPTURE_CAMERA);
+            openCameraIntent();
+            //startActivityForResult(new Intent(MediaStore.ACTION_IMAGE_CAPTURE), REQUEST_CODE_CAPTURE_CAMERA);
         } else {
 
             /// USER INTERFACE
@@ -265,6 +269,8 @@ public class UploadFilesActivity extends FileActivity implements
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent capturedData) {
         if (requestCode == REQUEST_CODE_CAPTURE_CAMERA && resultCode == RESULT_OK) {
+            new CheckAvailableSpaceTask().execute(true);
+            /*
             Bundle capturedImageData = capturedData.getExtras();
             Bitmap capturedImage = (Bitmap) capturedImageData.get("data");
             if (capturedImage != null) {
@@ -278,6 +284,7 @@ public class UploadFilesActivity extends FileActivity implements
                 capturedImagePath = newImage.getAbsolutePath();
                 new CheckAvailableSpaceTask().execute(true);
             }
+            */
         } else if (resultCode == RESULT_CANCELED) {
             setResult(RESULT_CANCELED);
             finish();
@@ -325,6 +332,46 @@ public class UploadFilesActivity extends FileActivity implements
         minute = minute.length() == 3 ? minute.substring(1, minute.length()) : minute;
         second = second.length() == 3 ? second.substring(1, second.length()) : second;
         return "IMG_" + year + month + day + "_" + hour + minute + second + ".jpg";
+    }
+
+    String currentPhotoPath;
+
+    private void openCameraIntent() {
+        Intent pictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        if(pictureIntent.resolveActivity(getPackageManager()) != null){
+            //Create a file to store the image
+            File photoFile = null;
+            try {
+                photoFile = createImageFile();
+            } catch (IOException ex) {
+                // Error occurred while creating the File
+                Log_OC.e(this,"error capturing image", ex);
+            }
+            if (photoFile != null) {
+                Uri photoURI = FileProvider.getUriForFile(
+                    this,
+                    getString(R.string.file_provider_authority),
+                    photoFile);
+                pictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
+                startActivityForResult(pictureIntent, REQUEST_CODE_CAPTURE_CAMERA);
+            }
+        }
+    }
+
+    private File createImageFile() throws IOException {
+        // Create an image file name
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String imageFileName = "IMG_" + timeStamp;
+        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        File image = File.createTempFile(
+            imageFileName,  /* prefix */
+            ".jpg",         /* suffix */
+            storageDir      /* directory */
+        );
+
+        // Save a file: path for use with ACTION_VIEW intents
+        currentPhotoPath = image.getAbsolutePath();
+        return image;
     }
 
     @Override
@@ -640,7 +687,7 @@ public class UploadFilesActivity extends FileActivity implements
             if(params[0]) {
                 String[] checkedFilePaths;
                 if (requestCode == FileDisplayActivity.REQUEST_CODE__DIRECT_CAMERA_UPLOAD) {
-                    checkedFilePaths = new String[]{capturedImagePath};
+                    checkedFilePaths = new String[]{currentPhotoPath};
                 } else {
                     checkedFilePaths = mFileListFragment.getCheckedFilePaths();
                 }
@@ -677,7 +724,7 @@ public class UploadFilesActivity extends FileActivity implements
                 Intent data = new Intent();
 
                 if(requestCode == FileDisplayActivity.REQUEST_CODE__DIRECT_CAMERA_UPLOAD){
-                    data.putExtra(EXTRA_CHOSEN_FILES,new String[]{ capturedImagePath});
+                    data.putExtra(EXTRA_CHOSEN_FILES,new String[]{ currentPhotoPath});
                     setResult(RESULT_OK_AND_MOVE, data);
 
                     PreferenceManager.setUploaderBehaviour(getApplicationContext(), FileUploader.LOCAL_BEHAVIOUR_MOVE);
