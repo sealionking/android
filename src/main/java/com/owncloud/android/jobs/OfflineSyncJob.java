@@ -68,9 +68,12 @@ public class OfflineSyncJob extends Job {
 
             if (android.os.Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
                 PowerManager powerManager = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
-                wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, MainApp.getAuthority() +
+
+                if (powerManager != null) {
+                    wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, MainApp.getAuthority() +
                         WAKELOCK_TAG_SEPARATION + TAG);
-                wakeLock.acquire(10 * 60 * 1000);
+                    wakeLock.acquire(10 * 60 * 1000);
+                }
             }
 
             Account[] accounts = AccountUtils.getAccounts(context);
