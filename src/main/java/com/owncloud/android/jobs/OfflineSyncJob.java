@@ -164,7 +164,7 @@ public class OfflineSyncJob extends Job {
             ocFolder.setEtagOnServer(updatedEtag);
             storageManager.saveFile(ocFolder);
         } catch (Exception e) {
-            Log_OC.e(TAG, "Failed to update etag on " + folder.getAbsolutePath());
+            Log_OC.e(TAG, "Failed to update etag on " + folder.getAbsolutePath(), e);
         }
     }
 }
