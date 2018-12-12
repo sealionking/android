@@ -34,7 +34,7 @@ import com.owncloud.android.datamodel.FileDataStorageManager;
 import com.owncloud.android.datamodel.OCFile;
 import com.owncloud.android.lib.common.operations.RemoteOperationResult;
 import com.owncloud.android.lib.common.utils.Log_OC;
-import com.owncloud.android.lib.resources.files.CheckEtagOperation;
+import com.owncloud.android.lib.resources.files.CheckEtagRemoteOperation;
 import com.owncloud.android.operations.SynchronizeFileOperation;
 import com.owncloud.android.utils.ConnectivityUtils;
 import com.owncloud.android.utils.FileStorageUtils;
@@ -110,8 +110,8 @@ public class OfflineSyncJob extends Job {
         Log_OC.d(TAG, folderName + ": currentEtag: " + ocFolder.getEtag());
 
         // check for etag change, if false, skip
-        CheckEtagOperation checkEtagOperation = new CheckEtagOperation(ocFolder.getRemotePath(),
-                ocFolder.getEtagOnServer());
+        CheckEtagRemoteOperation checkEtagOperation = new CheckEtagRemoteOperation(ocFolder.getRemotePath(),
+                                                                                   ocFolder.getEtagOnServer());
         RemoteOperationResult result = checkEtagOperation.execute(account, getContext());
 
         // eTag changed, sync file
